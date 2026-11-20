@@ -1,0 +1,24 @@
+{
+  "name": "commutr",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "dev:ets": "turbo run dev --filter=ets",
+    "dev:crd": "turbo run dev --filter=crd",
+    "dev:auth": "turbo run dev --filter=auth",
+    "build:ets": "turbo run build --filter=ets...",
+    "build:crd": "turbo run build --filter=crd...",
+    "build:auth": "turbo run build --filter=auth...",
+    "dev:stack": "turbo run dev:stack"
+  },
+  "devDependencies": {
+    "turbo": "^2.5.0"
+  },
+  "packageManager": "npm@11.12.1"
+}

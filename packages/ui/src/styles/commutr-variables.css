@@ -1,0 +1,279 @@
+/* ============================================================
+   COMMUTR DESIGN SYSTEM — CSS Variables  v1.1
+   Single source of truth for ALL design tokens.
+   Import this FIRST in index.css before any other stylesheet.
+   ============================================================ */
+
+@import url("https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&display=swap");
+
+:root {
+  /* ----------------------------------------------------------
+     COLOR — GREY  (from Figma tokens)
+  ---------------------------------------------------------- */
+  --color-grey-50: #fcfcfc;
+  --color-grey-100: #e8e8e8;
+  --color-grey-500: #868686;
+
+  /* ----------------------------------------------------------
+     COLOR — GREEN  (brand primary, from Figma tokens)
+  ---------------------------------------------------------- */
+  --color-green-50: #e5f3ed;
+  --color-green-200: #97c8b0;
+  --color-green-300: #6daf90;
+  --color-green-400: #3e9b73;
+  --color-green-500: #006c49;
+  --color-green-600: #005c3d;
+  --color-green-700: #004d32;
+  --color-green-800: #003d27;
+  --color-green-950: #001a10;
+
+  /* ----------------------------------------------------------
+     COLOR — BLUE  (accent)
+  ---------------------------------------------------------- */
+  --color-blue-400: #3b55ff;
+
+  /* ----------------------------------------------------------
+     COLOR — SEMANTIC STATUS
+  ---------------------------------------------------------- */
+  --color-success: var(--color-green-500);
+  --color-warning: #f59e0b;
+  --color-error: #ef4444;
+  --color-info: #3b82f6;
+
+  /* ----------------------------------------------------------
+     COLOR — SEMANTIC BRAND ALIASES
+     These are what components should reference — never raw hex.
+  ---------------------------------------------------------- */
+  --color-brand-primary: var(
+    --color-green-600
+  ); /* #005c3d — primary CTA, active states */
+  --color-brand-hover: var(--color-green-700); /* #004d32 — hover on primary */
+  --color-brand-active: var(--color-green-800); /* #003d27 — pressed state */
+  --color-brand-subtle: var(
+    --color-green-50
+  ); /* #e5f3ed — tinted bg, input bg */
+  --color-brand-subtle-mid: var(
+    --color-green-200
+  ); /* #97c8b0 — active sub-item bg */
+  --color-brand-text: var(--color-green-800); /* #003d27 — green on light bg */
+  --color-brand-icon: var(--color-green-600); /* sidebar icons, default */
+  --color-accent: var(--color-blue-400); /* #3b55ff — accent only */
+
+  /* ----------------------------------------------------------
+     COLOR — SURFACES & CHROME
+  ---------------------------------------------------------- */
+  --color-bg-page: #f7f8fa;
+  --color-bg-card: #ffffff;
+  --color-bg-sidebar: #ffffff;
+  --color-bg-header: #ffffff;
+  --color-surface: var(--color-grey-50);
+
+  /* ----------------------------------------------------------
+     COLOR — TEXT
+  ---------------------------------------------------------- */
+  --color-text-primary: #111827;
+  --color-text-secondary: #374151;
+  --color-text-tertiary: #6b7280;
+  --color-text-muted: var(--color-grey-500);
+  --color-text-placeholder: #9ca3af;
+
+  --color-text-danger: #dc2626;
+
+  /* ----------------------------------------------------------
+     COLOR — BORDERS
+  ---------------------------------------------------------- */
+  --color-border: var(--color-grey-100); /* #e8e8e8 — default border */
+  --color-border-input: #d1d5db;
+  --color-border-otp: #005c3d;
+  --color-border-focus: var(--color-green-600); /* input focus ring */
+  --color-border-secondary: #005c3d;
+
+  /* ----------------------------------------------------------
+     COLOR — INTERACTIVE STATES
+  ---------------------------------------------------------- */
+  --color-sidebar-active-bg: var(--color-green-600); /* top-level active item */
+  --color-sidebar-active-text: #ffffff;
+  --color-sidebar-active-sub-bg: #c8e6d4; /* sub-level active bg */
+  --color-sidebar-hover-bg: #e8f5ee;
+  --color-sidebar-hover-text: var(--color-green-600);
+  --color-sidebar-default-text: var(--color-green-600);
+
+  /* ----------------------------------------------------------
+     COLOR — ERROR / DANGER
+  ---------------------------------------------------------- */
+  --color-error-bg: #fef2f2;
+  --color-error-border: #fca5a5;
+  --color-error-text: #dc2626;
+
+  /* ----------------------------------------------------------
+     LAYOUT — DIMENSIONS
+  ---------------------------------------------------------- */
+  --sidebar-width-expanded: 256px;
+  --sidebar-width-collapsed: 121px;
+  --header-height: 64px;
+
+  /* ----------------------------------------------------------
+     SHADOWS
+  ---------------------------------------------------------- */
+  --shadow-sidebar: 2px 0 8px 0 rgba(0, 0, 0, 0.06);
+  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-input-focus: 0 0 0 3px rgba(0, 92, 61, 0.12);
+
+  /* ----------------------------------------------------------
+     BORDER RADIUS
+  ---------------------------------------------------------- */
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-2xl: 24px;
+
+  /* ----------------------------------------------------------
+     TYPOGRAPHY — FONT FAMILIES
+  ---------------------------------------------------------- */
+  --font-sans:
+    "Manrope", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-display:
+    "Manrope", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-mono: "JetBrains Mono", "Fira Code", monospace;
+
+  /* ----------------------------------------------------------
+     TYPOGRAPHY — DESKTOP SCALE  (size / line-height)
+  ---------------------------------------------------------- */
+  --text-display-size: 56px;
+  --text-display-lh: 56px;
+
+  --text-h1-size: 40px;
+  --text-h1-lh: 40px;
+  --text-h2-size: 32px;
+  --text-h2-lh: 32px;
+  --text-h3-size: 24px;
+  --text-h3-lh: 24px;
+  --text-h4-size: 20px;
+  --text-h4-lh: 20px;
+  --text-h5-size: 16px;
+  --text-h5-lh: 16px;
+  --text-h6-size: 14px;
+  --text-h6-lh: 14px;
+
+  --text-subhead-lg-size: 20px;
+  --text-subhead-lg-lh: 20px;
+  --text-subhead-sm-size: 16px;
+  --text-subhead-sm-lh: 20px;
+
+  --text-body-lg-size: 18px;
+  --text-body-lg-lh: 18px;
+  --text-body-md-size: 16px;
+  --text-body-md-lh: 20px;
+  --text-body-sm-size: 14px;
+  --text-body-sm-lh: 1.6;
+
+  --text-label-lg-size: 14px;
+  --text-label-lg-lh: 14px;
+  --text-label-sm-size: 12px;
+  --text-label-sm-lh: 14px;
+  --text-caption-size: 12px;
+  --text-caption-lh: 1.5;
+  --text-overline-size: 11px;
+  --text-overline-lh: 1.4;
+  /* sidebar */
+   --sidebar-text-label-sm-size: 10px;
+    --sidebar-text-body-sm-size: 11px;
+
+  /* ----------------------------------------------------------
+     TRANSITIONS
+  ---------------------------------------------------------- */
+  --transition-sidebar: width 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-fast: 0.15s ease;
+  --transition-normal: 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ============================================================
+   TYPOGRAPHY UTILITY CLASSES
+   Apply these CSS classes in JSX instead of hardcoding sizes.
+   ============================================================ */
+
+.text-display {
+  font-size: var(--text-display-size);
+  line-height: var(--text-display-lh);
+  font-family: var(--font-display);
+  font-weight: 700;
+}
+.text-h1 {
+  font-size: var(--text-h1-size);
+  line-height: var(--text-h1-lh);
+  font-weight: 700;
+}
+.text-h2 {
+  font-size: var(--text-h2-size);
+  line-height: var(--text-h2-lh);
+  font-weight: 700;
+}
+.text-h3 {
+  font-size: var(--text-h3-size);
+  line-height: var(--text-h3-lh);
+  font-weight: 600;
+}
+.text-h4 {
+  font-size: var(--text-h4-size);
+  line-height: var(--text-h4-lh);
+  font-weight: 600;
+}
+.text-h5 {
+  font-size: var(--text-h5-size);
+  line-height: var(--text-h5-lh);
+  font-weight: 600;
+}
+.text-h6 {
+  font-size: var(--text-h6-size);
+  line-height: var(--text-h6-lh);
+  font-weight: 600;
+}
+
+.text-subhead-lg {
+  font-size: var(--text-subhead-lg-size);
+  line-height: var(--text-subhead-lg-lh);
+  font-weight: 500;
+}
+.text-subhead-sm {
+  font-size: var(--text-subhead-sm-size);
+  line-height: var(--text-subhead-sm-lh);
+  font-weight: 500;
+}
+
+.text-body-lg {
+  font-size: var(--text-body-lg-size);
+  line-height: var(--text-body-lg-lh);
+}
+.text-body-md {
+  font-size: var(--text-body-md-size);
+  line-height: var(--text-body-md-lh);
+}
+.text-body-sm {
+  font-size: var(--text-body-sm-size);
+  line-height: var(--text-body-sm-lh);
+}
+
+.text-label-lg {
+  font-size: var(--text-label-lg-size);
+  line-height: var(--text-label-lg-lh);
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+.text-label-sm {
+  font-size: var(--text-label-sm-size);
+  line-height: var(--text-label-sm-lh);
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+.text-caption {
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-lh);
+}
+.text-overline {
+  font-size: var(--text-overline-size);
+  line-height: var(--text-overline-lh);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 700;
+}

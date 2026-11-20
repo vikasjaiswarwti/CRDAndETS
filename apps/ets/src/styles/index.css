@@ -1,0 +1,323 @@
+/*
+ * src/styles/index.css
+ *
+ * Import order is load-bearing:
+ *   1. commutr-variables.css  — all CSS custom properties (tokens) must exist FIRST
+ *   2. tailwindcss/preflight  — CSS reset
+ *   3. tailwindcss            — utility classes
+ *
+ * Never import tokens after Tailwind — variables won't be available during utility generation.
+ */
+
+/* ── 1. Design tokens — single source of truth ──────────────────────────── */
+@import "@commutr/ui/styles/commutr-variables.css";
+
+/* ── 2. Tailwind v4 ─────────────────────────────────────────────────────── */
+@import "tailwindcss/preflight";
+
+/* ── 3. AntD + Tailwind coexistence ─────────────────────────────────────── */
+/*
+ * Tailwind preflight sets border-style: solid; border-width: 0 on all elements.
+ * AntD relies on browser default (border: none). This causes unexpected borders.
+ * Fix: reset box-sizing and border behaviour AFTER preflight, scoped to AntD elements.
+ */
+.ant-btn,
+.ant-input,
+.ant-input-affix-wrapper,
+.ant-select-selector,
+.ant-picker,
+.ant-input-number-input {
+  border-width: unset;
+}
+
+/* ── 4. Base ─────────────────────────────────────────────────────────────── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  background: var(--color-bg-page);
+  color: var(--color-text-primary);
+  line-height: 1.5;
+}
+
+/* ── 5. AntD theme overrides — always use CSS vars, never raw hex ─────────── */
+.ant-btn-primary {
+  background-color: var(--color-brand-primary) !important;
+  border-color: var(--color-brand-primary) !important;
+}
+.ant-btn-primary:not(:disabled):hover {
+  background-color: var(--color-brand-hover) !important;
+  border-color: var(--color-brand-hover) !important;
+}
+
+.ant-switch-checked {
+  background-color: var(--color-brand-primary) !important;
+}
+
+.ant-layout-sider {
+  background: var(--color-bg-sidebar) !important;
+}
+
+/* ── 6. Utilities ─────────────────────────────────────────────────────────── */
+
+/* Thin scrollbar for sidebar */
+.scrollbar-thin::-webkit-scrollbar {
+  width: 4px;
+}
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: var(--color-grey-100);
+  border-radius: 99px;
+}
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background: var(--color-grey-500);
+}
+
+.menu-pagination-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 16px;
+  padding: 0 8px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.showing-text {
+  font-size: 14px;
+  /* color: #666; */
+  color: var(--color-brand-primary) !important;
+  font-weight: 400;
+}
+
+.pagination-right .ant-pagination {
+  margin: 0;
+}
+
+.ant-pagination-item-active:hover a {
+  color: #ffffff !important;
+}
+
+/* .react-tel-input .form-control:focus {
+  border-color: #4096ff !important;
+  box-shadow: 0 0 0 2px rgba(5, 145, 255, 0.1) !important;
+  outline: none;
+} */
+
+/*---------------------------------------------------------------------- works fine for development/local env  */
+/* :where(.css-dev-only-do-not-override-1enej14).ant-table-wrapper
+  .ant-table-container
+  table
+  > thead
+  > tr:first-child
+  > *:first-child {
+  border-start-start-radius: 0 !important;
+}
+
+:where(.css-dev-only-do-not-override-1enej14).ant-table-wrapper
+  .ant-table
+  .ant-table-title,
+:where(.css-dev-only-do-not-override-1enej14).ant-table-wrapper
+  .ant-table
+  .ant-table-header {
+  border-radius: 0 !important;
+}
+
+:where(.css-dev-only-do-not-override-1enej14).ant-table-wrapper
+  .ant-table-container
+  table
+  > thead
+  > tr:first-child
+  > *:last-child {
+  border-start-end-radius: 0 !important;
+}
+
+
+ */
+
+/*-------------------------------------------- works fine for development/local env  */
+
+.ant-table-wrapper
+  .ant-table-container
+  table
+  > thead
+  > tr:first-child
+  > *:first-child {
+  border-start-start-radius: 0 !important;
+}
+
+.ant-table-wrapper .ant-table .ant-table-title,
+.ant-table-wrapper .ant-table .ant-table-header {
+  border-radius: 0 !important;
+}
+
+.ant-table-wrapper
+  .ant-table-container
+  table
+  > thead
+  > tr:first-child
+  > *:last-child {
+  border-start-end-radius: 0 !important;
+}
+
+.ant-table-thead th:first-child,
+.ant-table-tbody td:first-child {
+  padding-left: 26px !important;
+}
+
+.ant-table-thead th:last-child,
+.ant-table-tbody td:last-child {
+  padding-right: 26px !important;
+}
+
+@media (max-width: 768px) {
+  .menu-pagination-bar {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+/* Optional: Make it look cleaner */
+@media (max-width: 768px) {
+  .custom-pagination-wrapper {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+}
+
+/* Page enter animation */
+@keyframes pageEnter {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.page-enter {
+  animation: pageEnter 220ms ease forwards;
+}
+
+/* Spinner keyframes used by inline SVG spinners */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Slide-in (toast / panel) */
+@keyframes slide-in {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+.animate-slide-in {
+  animation: slide-in 0.3s ease-out;
+}
+
+.dt-search .ant-input {
+  padding-block: 4px !important;
+}
+.no-hover-create,
+.no-hover-create:hover,
+.no-hover-create:focus,
+.no-hover-create:active {
+  background: #1b4332 !important;
+  border-color: #1b4332 !important;
+  color: #fff !important;
+  box-shadow: 0 2px 8px rgba(27, 67, 50, 0.25) !important;
+  transition: none !important;
+}
+
+/* -table row */
+/* Make entire row red */
+.error-row > th {
+  background-color: #fef2f2 !important; /* red */
+}
+.error-row > td {
+  background-color: #fef2f2 !important; /* red */
+  color: #fff !important; /* white text */
+}
+/* Reduce overall dragger height */
+.small-dragger.ant-upload-wrapper .ant-upload-drag {
+  padding: 8px 0 !important;
+  min-height: 20px !important; /* control height */
+}
+
+/* Reduce icon spacing */
+.small-dragger .ant-upload-drag-icon {
+  margin-bottom: 2px !important;
+}
+
+/* Reduce text spacing */
+.small-dragger p {
+  margin: 0 !important;
+  font-size: 12px;
+}
+.no-transition-btn {
+  transition: none !important;
+}
+
+.no-transition-btn:hover,
+.no-transition-btn:focus {
+  transition: none !important;
+}
+
+.vehicle-input input {
+  text-transform: uppercase;
+}
+.vehicle-input input::placeholder {
+  text-transform: none;
+}
+.vehicle-input::placeholder {
+  text-transform: none;
+}
+
+.ant-btn,
+.ant-btn::before {
+  transition: none !important;
+  animation: none !important;
+}
+.no-effect-btn,
+.no-effect-btn:hover,
+.no-effect-btn:focus,
+.no-effect-btn:active {
+  transition: none !important;
+  animation: none !important;
+  box-shadow: none !important;
+}
+
+/* Remove Ant Design wave effect */
+.no-effect-btn::before,
+.no-effect-btn::after {
+  display: none !important;
+  animation: none !important;
+}
+
+/* Ant Design internal wave class */
+.ant-wave {
+  display: none !important;
+}
+.fullWidthUpload .ant-upload {
+  width: 100%;
+}

@@ -1,0 +1,10 @@
+services:
+  ets-web:
+    image: ghcr.io/<org>/commutr-ets-web:${TAG:-latest}
+    container_name: ets-web
+    networks: [commutr-net]   # no published ports — reachable only via gateway
+    restart: unless-stopped
+
+networks:
+  commutr-net:
+    external: true

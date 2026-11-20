@@ -1,0 +1,31 @@
+{
+  "name": "crd",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview",
+    "dev:stack": "vite"
+  },
+  "dependencies": {
+    "@ant-design/icons": "^6.1.0",
+    "@commutr/shared": "*",
+    "@commutr/ui": "*",
+    "@reduxjs/toolkit": "^2.11.2",
+    "antd": "^6.3.1",
+    "async-mutex": "^0.5.0",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "react-redux": "^9.2.0",
+    "react-router-dom": "^7.13.1"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.7",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react-swc": "^4.2.2",
+    "typescript": "~5.9.3",
+    "vite": "^7.3.1"
+  }
+}

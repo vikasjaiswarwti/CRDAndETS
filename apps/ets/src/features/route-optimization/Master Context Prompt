@@ -1,0 +1,569 @@
+# Route Maker — Master Context Prompt
+
+> Paste this entire document at the start of any new conversation to instantly give Claude full context about the project architecture, conventions, files, and patterns. Then describe only the enhancement you want.
+
+---
+
+## 1 · Project Overview
+
+Enterprise transport/cab routing dashboard built with **Vite + React + TypeScript + Redux Toolkit + RTK Query**.  
+Feature name: **Route Maker** (`src/features/route-maker/`).  
+Purpose: Operations team assigns employees to cab routes for login/logout shifts, reorders pickup sequences, and monitors route efficiency in real-time.
+
+---
+
+## 2 · Tech Stack & Conventions
+
+| Concern              | Choice                                                                                               |
+| -------------------- | ---------------------------------------------------------------------------------------------------- |
+| Build                | Vite 5                                                                                               |
+| UI framework         | React 18, TypeScript strict                                                                          |
+| State                | Redux Toolkit + RTK Query                                                                            |
+| Styling              | **Inline styles with `T` design-token object** (no Tailwind, no CSS modules)                         |
+| Maps                 | `@vis.gl/react-google-maps` — `APIProvider` + `Map` + `useMap()` inside a `MapInner` child component |
+| Drag & Drop          | HTML5 `DragEvent` API — `dataTransfer.setData / getData`                                             |
+| UI component library | Imported via `useUILibrary()` hook — **NEVER** `import X from 'antd'` directly                       |
+| Icons                | Custom SVG components in `icons/RouteMakerIcons.tsx`                                                 |
+| API key              | `VITE_GOOGLE_MAPS_KEY` env var                                                                       |
+
+**Style rule:** All colors, spacing, radii come from the `T` object (`constants/designTokens.ts`). Dynamic route colors come from `routeColor(vehicleId, index)` and the `colorMap: Record<number, string>` that is built once with `buildColorMap()` and passed down as a prop.
+
+---
+
+## 3 · Full File Tree
+
+```
+src/features/route-maker/
+│
+├── types/
+│   └── routeMaker.types.ts          # Passenger, Waypoint, VehicleRoute, RouteStats, CabGroup
+│
+├── data/
+│   └── mockRouteData.ts             # 5 real Pune routes (101-105), OFFICE_LOCATION, MOCK_ROUTES
+│
+├── constants/
+│   ├── designTokens.ts              # T object, ROUTE_PALETTE, routeColor()
+│   └── mapConstants.ts              # MAP_BOUNDS, SVG_W/H, project(), PUNE_ROADS, PUNE_AREA_LABELS
+│
+├── utils/
+│   ├── routeMakerHelpers.ts         # fmt12, fmtDuration, fmtDist, computeStats, buildCabGroups, buildColorMap
+│   └── vehicleRouteAdapter.ts       # adaptVehicleRoutes(), invalidateAdapterCache()
+│
+├── hooks/
+│   └── useDragAndDrop.ts            # Fully isolated HTML5 D&D hook with activity logging
+│
+├── icons/
+│   └── RouteMakerIcons.tsx          # IcBack IcCal IcBell IcChevron IcExpand IcMerge IcRearrange
+│                                    # IcFilter IcUpload IcGuard IcPin IcFlag IcPlus IcSearch
+│                                    # IcHistory IcDistribution IcDrag IcLog
+│
+├── map/                             # Google Maps sub-feature (originally uploaded, bug-fixed)
+│   ├── RouteMap.tsx                 # APIProvider wrapper; MapInner uses useMap() hook
+│   ├── useRouteMap.ts               # Imperative handle: renderRoutes, focusRoute, fitAllRoutes
+│   ├── markerIcons.ts               # createNumberedMarkerIcon, createHighlightedMarkerIcon, createClusterIcon
+│   ├── routeColors.ts               # ROUTE_COLORS[], getRouteColor(index)
+│   ├── Mapengineconfig.ts           # MAP_ENGINE_CONFIG: polyline weights, USE_MARKER_CLUSTERER_LIBRARY
+│   ├── mapBounds.ts                 # fitMapToRoutes (100 ms debounced), fitMapToRoute
+│   ├── Rawcluster.ts                # RawClusterEngine — zero-dependency grid-based clustering fallback
+│   └── routeDataAdapter.ts         # (legacy — superseded by vehicleRouteAdapter.ts)
+│
+├── components/
+│   ├── Toolbar.tsx                  # Static top nav; no props
+│   ├── KpiStatsBar.tsx              # props: routes: VehicleRoute[]
+│   ├── PassengerRow.tsx             # Draggable row; builds DragPassenger payload internally
+│   ├── CabGroupPanel.tsx            # Drop zone; zoneId = "cab-{vehicleId}"
+│   ├── LeftSidebar.tsx              # Renders CabGroupPanel list; passes all D&D handlers
+│   ├── EfficiencyLegend.tsx         # Static overlay (90%+, 70-89%, 50-69%, risk/late)
+│   ├── SvgMap.tsx                   # SVG placeholder map (keep for offline/test use)
+│   ├── CenterMapPanel.tsx           # ★ LIVE: wraps Google Maps RouteMap + EfficiencyLegend
+│   ├── RouteStackCard.tsx           # Drop zone; zoneId = "route-card-{vehicleId}"
+│   ├── RouteStackPanel.tsx          # Right panel: route cards, search, sort, log toggle
+│   └── DragLogPanel.tsx             # Fixed bottom-right terminal-style activity log
+│
+└── pages/
+    └── RouteMakerPage.tsx           # Thin orchestrator (~100 lines); owns state + D&D handlers
+```
+
+---
+
+## 4 · Core Type Interfaces
+
+```typescript
+// routeMaker.types.ts
+interface Passenger {
+  Id: number;
+  EmployeeID: string;
+  Firstname: string;
+  Address: string;
+  Gender: "M" | "F";
+  Lat: number;
+  Lng: number;
+  PickupSequence: number;
+  EstimatedPickupTime: string;
+  RideTimeMinutes: number;
+  EstimatedArrivalAtOffice: string;
+  IsLate: boolean;
+  MinutesFromDeadline: number;
+  EfficiencyPercentage: number;
+}
+interface Waypoint {
+  PassengerId: number | null;
+  Label: string;
+  Lat: number;
+  Lng: number;
+  Sequence: number;
+  EstimatedArrivalTime: string;
+}
+interface VehicleRoute {
+  VehicleId: number;
+  Passengers: Passenger[];
+  PickupOrder: number[];
+  IsGuardAllocated: boolean;
+  GuardSeatCount: number;
+  TotalSeatUsed: number;
+  AvailablePassengerSeats: number;
+  RoutePolyline: string;
+  RouteDistanceKm: number;
+  RouteDurationMinutes: number;
+  Waypoints: Waypoint[];
+  EfficiencyPercentage: number;
+  AverageDetourKm: number;
+  TotalDirectDistanceKm: number;
+  TotalActualDistanceKm: number;
+  CabDepartureTime: string;
+  EstimatedOfficeArrival: string;
+  AnyCabMemberIsLate: boolean;
+  LatePassengerCount: number;
+}
+interface CabGroup {
+  vehicleId: number;
+  label: string;
+  cabNo: string;
+  color: string;
+  passengers: Passenger[];
+  isGuardAllocated: boolean;
+}
+```
+
+---
+
+## 5 · Mock Data — 5 Pune Routes
+
+```
+Office (drop-off): OFFICE_LOCATION = { lat: 18.5108, lng: 73.9282 }  // Magarpatta City
+
+Route 101 (4 pax): Wakad(18.5983,73.7612) → Baner(18.559,73.7889) → Aundh(18.551,73.8148) → Shivajinagar(18.5308,73.8481) → Office
+Route 102 (3 pax): Viman Nagar(18.5674,73.9122) → Kalyani Nagar(18.5468,73.9021) → Koregaon Park(18.5383,73.8944) → Office
+Route 103 (4 pax): Katraj(18.4496,73.8586) → Kondhwa(18.478,73.8904) → NIBM(18.4972,73.9012) → Wanowrie(18.5042,73.9122) → Office
+Route 104 (3 pax): Pimpri(18.6255,73.8034) → Chinchwad(18.6015,73.8094) → Deccan(18.5172,73.8449) → Office
+Route 105 (3 pax): Kothrud(18.5074,73.8065) → Karve Nagar(18.5012,73.8234) → Sinhagad(18.4891,73.8412) → Office
+                   ⚠️ Tanvi Bhosale is late on Route 105 (IsLate: true, MinutesFromDeadline: 7)
+```
+
+---
+
+## 6 · Drag-and-Drop Architecture
+
+**Hook:** `useDragAndDrop.ts` — completely isolated, no UI/business imports.
+
+```typescript
+// Key exports
+type DropZoneType = "CAB_GROUP" | "ROUTE_CARD";
+interface DragPassenger {
+  passengerId: number;
+  passengerName: string;
+  employeeId: string;
+  gender: "M" | "F";
+  sourceVehicleId: number;
+  sourceVehicleLabel: string;
+  pickupSequence: number;
+}
+interface DropResult {
+  passenger: DragPassenger;
+  targetVehicleId: number;
+  targetType: DropZoneType;
+}
+interface DragLogEntry {
+  id;
+  timestamp;
+  action: "START" | "DROP" | "CANCEL" | "SAME_VEHICLE";
+  passengerName;
+  employeeId;
+  fromVehicle;
+  toVehicle;
+  toType;
+  success;
+  note;
+}
+```
+
+**Transfer key:** `'application/x-route-maker-passenger'`  
+**Same-vehicle guard:** dropping on same `vehicleId` logs `SAME_VEHICLE` and returns `null`  
+**Cancel detection:** `droppedRef.current` tracks successful drops; `onDragEnd` emits `CANCEL` if false  
+**Logs:** capped at 100, newest first; `console.group()` with color formatting
+
+**Zone IDs:**
+
+- Left sidebar cab panel: `"cab-{vehicleId}"`
+- Right stack card: `"route-card-{vehicleId}"`
+
+**Passenger move logic** (in `RouteMakerPage.tsx`):
+
+```typescript
+function applyDropToCabGroup(result: DropResult): void {
+  setCabGroups((prev) => {
+    const from = prev.find(
+      (g) => g.vehicleId === result.passenger.sourceVehicleId,
+    );
+    const to = prev.find((g) => g.vehicleId === result.targetVehicleId);
+    if (!from || !to) return prev;
+    const movedPassenger = from.passengers.find(
+      (p) => p.Id === result.passenger.passengerId,
+    );
+    if (!movedPassenger) return prev;
+    return prev.map((g) => {
+      if (g.vehicleId === from.vehicleId)
+        return {
+          ...g,
+          passengers: g.passengers.filter((p) => p.Id !== movedPassenger.Id),
+        };
+      if (g.vehicleId === to.vehicleId)
+        return {
+          ...g,
+          passengers: [
+            ...g.passengers,
+            { ...movedPassenger, PickupSequence: g.passengers.length + 1 },
+          ],
+        };
+      return g;
+    });
+  });
+}
+```
+
+---
+
+## 7 · Google Maps Integration
+
+**Package:** `@vis.gl/react-google-maps`  
+**Pattern:** `APIProvider` at top → `<Map>` renders tile layer → `MapInner` child uses `useMap()` hook (critical: `useMap` only works inside `APIProvider`).
+
+**Known bugs fixed in uploaded code (do NOT revert):**
+
+| #   | Bug                                               | Fix                                                 |
+| --- | ------------------------------------------------- | --------------------------------------------------- |
+| 1   | `onLoad` prop doesn't exist on vis.gl `<Map>`     | Use `useMap()` in `MapInner` child                  |
+| 2   | `focusRoute(routeId)` lost routes between renders | `routesSnapshotRef` persists routes                 |
+| 3   | Dashboard `ROUTES` shape ≠ `RouteData` shape      | `vehicleRouteAdapter.ts` converts                   |
+| 4   | Double marker render with MarkerClusterer         | Set `map: null` before handing to cluster           |
+| 5   | `options={{}}` silently ignored                   | Use individual Map props instead                    |
+| 6   | `fitBounds` called before map projection ready    | 100 ms debounce in `mapBounds.ts`                   |
+| 7   | Random coords in old adapter                      | `vehicleRouteAdapter.ts` uses real Waypoint lat/lng |
+
+**Adapter:** `vehicleRouteAdapter.ts → adaptVehicleRoutes(routes, colorMap): RouteData[]`
+
+- Sorts `Waypoints[]` by `Sequence` for ordered polyline
+- Uses `Passenger.Lat / Lng` for stop markers — **no random generation**
+- `invalidateAdapterCache(routes)` — call after passenger drag-and-drop to force re-render
+
+**Map style:** `CenterMapPanel.tsx` applies `CLEAN_MAP_STYLE` — mutes POI, transit, business icons so route polylines are visually dominant.  
+**Env var:** `VITE_GOOGLE_MAPS_KEY` — warning banner rendered when missing.
+
+---
+
+## 8 · RouteMakerPage State (Orchestrator)
+
+```typescript
+const [routes, setRoutes] = useState<VehicleRoute[]>(MOCK_ROUTES);
+const [colorMap, setColorMap] = useState<Record<number, string>>(() =>
+  buildColorMap(MOCK_ROUTES),
+);
+const [cabGroups, setCabGroups] = useState<CabGroup[]>(() =>
+  buildCabGroups(MOCK_ROUTES, colorMap),
+);
+const [activeVehicleId, setActiveVehicleId] = useState<number | null>(null);
+const [showLog, setShowLog] = useState(false);
+const dd = useDragAndDrop();
+```
+
+**Drop handlers wired to:**
+
+- `handleDropOnCab(e, vehicleId)` → `dd.onDrop(…, 'CAB_GROUP')` → `applyDropToCabGroup()` + `setShowLog(true)`
+- `handleDropOnRoute(e, vehicleId)` → `dd.onDrop(…, 'ROUTE_CARD')` → `setShowLog(true)`
+
+---
+
+## 9 · KPI Stats Bar Values (computed from JSON)
+
+```
+emp   = total passenger count across all routes
+routes = route count
+guards = routes where IsGuardAllocated === true
+snEmp  = passengers where IsLate === true
+su    = "{used}/{total}" from sum TotalSeatUsed / sum (TotalSeatUsed + AvailablePassengerSeats)
+dist  = sum RouteDistanceKm (rounded)
+extra = sum AverageDetourKm * route count (rounded)
+fleet = unique cab types (mock: "Sedan / Innova")
+```
+
+---
+
+## 10 · Design Tokens Quick Reference
+
+```typescript
+// T object key values
+T.bg = "#0f172a"; // page background (dark)
+T.panel = "#1e293b"; // sidebar / panel bg
+T.card = "#253047"; // card bg
+T.border = "#334155"; // subtle border
+T.text = "#f1f5f9"; // primary text
+T.muted = "#94a3b8"; // secondary text
+T.accent = "#3b82f6"; // blue accent
+T.success = "#22c55e"; // green
+T.warn = "#f59e0b"; // amber
+T.danger = "#ef4444"; // red
+T.radius = 10; // border-radius px
+T.radiusSm = 6;
+
+// Route palette (5 colors, cycles for more routes)
+ROUTE_PALETTE = ["#3b82f6", "#10b981", "#f59e0b", "#8b5cf6", "#ef4444"];
+routeColor(vehicleId, index); // stable color lookup
+```
+
+---
+
+## 11 · How to Request Enhancements
+
+When asking for new features, specify:
+
+1. **Which file(s)** to edit (use the file tree in §3)
+2. **What the new prop/state/handler** should be named
+3. **Which existing pattern** to follow (e.g. "same drag-and-drop pattern as CabGroupPanel")
+4. **Any new type fields** needed in `routeMaker.types.ts`
+
+Example prompt:
+
+> "Add a `isExpanded: boolean` toggle to `RouteStackCard.tsx` that reveals a full passenger list below the card. Follow the existing inline-style + T token pattern. No new dependencies."
+
+---
+
+## 12 · File Output Location
+
+All files live at:  
+`src/features/route-maker/` (relative to your Vite project root)
+
+During development sessions, Claude creates files in the outputs folder and presents them as download links. Copy each file to its path in `§3` above.
+
+---
+
+_Last updated: Session where Google Maps polyline integration + component breakdown was completed._
+
+---
+
+## 13 · Layout System (CSS Grid)
+
+```
+┌─────────────────────────────── 100vw ────────────────────────────────┐
+│  AppHeader  (variant="route-maker")          56px  │  grid row 1    │
+├──────────────────────────────────────────────────────────────────────┤
+│  KpiStatsBar                                 52px  │  grid row 2    │
+├─────────────────┬────────────────────────┬─────────────────────────┤
+│  LeftSidebar    │  CenterMapPanel (map)  │  RouteStackPanel        │
+│  260px          │  1fr                   │  380px                  │
+│  collapsible→0  │                        │  hidden when no route   │
+│                 │                        │  selected               │
+└─────────────────┴────────────────────────┴─────────────────────────┘
+                    grid row 3 (1fr, overflows hidden)
+```
+
+**Grid columns formula:** `contentColumns(sidebarCollapsed, stackVisible)` in RouteMakerPage
+
+- `sidebarCollapsed=true` → left = `0px`
+- `stackVisible=false` (no activeVehicleId) → right = `0px`
+- Animated with `transition: grid-template-columns 0.25s cubic-bezier(0.4,0,0.2,1)`
+
+---
+
+## 14 · New Components (added after grid refactor)
+
+| File                                | Purpose                                                                  |
+| ----------------------------------- | ------------------------------------------------------------------------ |
+| `components/AppHeader.tsx`          | Configurable header; `variant="route-maker"` matches COMMUTR screenshots |
+| `components/FilterPanel.tsx`        | Slide-in drawer; `RouteFilters` type; General + More filter sections     |
+| `components/AssignVehicleModal.tsx` | Centered modal for vendor + vehicle assignment per route                 |
+| `components/ActionDropdown.tsx`     | Per-card popover: nodal points, employee comments, flag, approve, delete |
+| `components/SortDropdown.tsx`       | Sort field list + Asc/Desc toggle popover                                |
+
+**AppHeader variants:**
+
+```typescript
+// Standard pages
+<AppHeader variant="default" />
+
+// Route Maker + any similar full-page tools
+<AppHeader variant="route-maker" title="Route Optimization" onBack={() => …} />
+```
+
+**Feature isolation pattern:** Each feature (Assign, Filter, Action) is completely self-contained.  
+RouteMakerPage owns `open` state and passes `onAssignVehicle(routeId)` / `onOpenFilter()` callbacks into child panels.  
+Panels call those callbacks — they never directly open modals themselves.
+
+---
+
+## 15 · Design Tokens (light theme)
+
+```typescript
+// Key token changes from dark → light
+T.bg = "#F5F6FA"; // light gray page bg
+T.panel = "#FFFFFF"; // white panels
+T.card = "#FFFFFF";
+T.text = "#1A202C"; // near-black
+T.muted = "#6B7280";
+T.accent = "#16A34A"; // COMMUTR green
+T.accentBg = "#F0FDF4"; // green tint
+T.border = "#E2E8F0";
+T.shadow = "0 1px 3px rgba(0,0,0,0.10)…";
+T.headerH = 56; // header height px
+T.statsH = 52; // stats bar height px
+T.sidebarW = 260; // left sidebar px
+T.routeStackW = 380; // right stack px
+```
+
+---
+
+# Route Maker — Real API Integration Guide
+
+## What changed & why
+
+The API response (`route-analytics`) uses a different shape than the existing mock data:
+
+| API field                            | Mock field                        |
+| ------------------------------------ | --------------------------------- |
+| `dsId`                               | `VehicleId`                       |
+| `passengers[].empId`                 | `Passenger.Id`                    |
+| `passengers[].lat/lng`               | `Passenger.Lat/Lng`               |
+| `routePolyline` (on trip)            | `RoutePolyline` (on VehicleRoute) |
+| `totalDuration` (string, minutes)    | `RouteDurationMinutes`            |
+| No `Waypoints`                       | `Waypoints[]` — synthesised       |
+| No `IsLate` / `EfficiencyPercentage` | Derived from `extraDistanceKm`    |
+
+Three new files handle the translation; **no existing files are modified**.
+
+---
+
+## Files to copy
+
+```
+apiRouteTypes.ts      → src/features/route-maker/types/apiRouteTypes.ts
+apiRouteAdapter.ts    → src/features/route-maker/utils/apiRouteAdapter.ts
+routeMakerApi.ts      → src/features/route-maker/services/routeMakerApi.ts
+RouteMakerPage.tsx    → src/features/route-maker/pages/RouteMakerPage.tsx  (replaces existing)
+```
+
+---
+
+## Redux store wiring (one-time, ~4 lines)
+
+In your `src/app/store.ts` (or wherever your Redux store is configured):
+
+```ts
+import { routeMakerApi } from "../features/route-maker/services/routeMakerApi";
+
+export const store = configureStore({
+  reducer: {
+    // ...your existing reducers...
+    [routeMakerApi.reducerPath]: routeMakerApi.reducer, // ← add this
+  },
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware().concat(
+      routeMakerApi.middleware, // ← add this
+    ),
+});
+```
+
+---
+
+## Environment variable
+
+Set `VITE_API_BASE_URL` in your `.env` (or `.env.local`):
+
+```
+VITE_API_BASE_URL=https://your-backend.example.com/api
+```
+
+If you omit it the adapter defaults to `/api` (works if your Vite dev server proxies the backend).
+
+---
+
+## Auth token
+
+`routeMakerApi.ts` pulls `state.auth.accessToken` from Redux.  
+If your auth slice uses a different path, update `prepareHeaders` in `routeMakerApi.ts`:
+
+```ts
+// current
+const token = (getState() as any)?.auth?.accessToken;
+
+// change to match your slice, e.g.:
+const token = (getState() as any)?.session?.token;
+```
+
+---
+
+## Query parameters
+
+In `RouteMakerPage.tsx` near the top, update `QUERY_ARGS` to the correct values (or
+drive them from route params / context):
+
+```ts
+const QUERY_ARGS = {
+  locCode: 183,
+  shiftId: 70,
+  tripType: 1, // 1 = login shift
+  routeDate: "2026-06-30",
+};
+```
+
+---
+
+## What the adapter derives
+
+| VehicleRoute field     | Derived from                                                           |
+| ---------------------- | ---------------------------------------------------------------------- |
+| `EfficiencyPercentage` | `(routedKm - extraKm) / routedKm × 100`                                |
+| `AverageDetourKm`      | mean of `extraDistanceKm` across passengers                            |
+| `Waypoints`            | one waypoint per passenger + terminal Office waypoint                  |
+| `CabDepartureTime`     | last ETA minus `totalDuration` minutes                                 |
+| `RouteDurationMinutes` | `parseFloat(totalDuration)`                                            |
+| `Passenger.EmployeeID` | `"EMP-{empId}"`                                                        |
+| `Passenger.Firstname`  | `"Employee {empId}"` — replace with a lookup if you have employee data |
+| `Passenger.Gender`     | defaults to `'M'` — not in API                                         |
+| `Passenger.IsLate`     | defaults to `false` — not in API                                       |
+
+---
+
+## Keeping mock data working during dev
+
+`RouteMakerPage.tsx` calls the real API. If you want to keep the mock data for
+offline development, add `skipToken` from RTK Query:
+
+```ts
+import { skipToken } from "@reduxjs/toolkit/query/react";
+
+const USE_MOCK = import.meta.env.VITE_USE_MOCK === "true";
+
+const { data: apiData } = useGetRouteAnalyticsQuery(
+  USE_MOCK ? skipToken : QUERY_ARGS,
+);
+
+// then in the useEffect:
+useEffect(() => {
+  const source = apiData ? adaptApiResponse(apiData) : MOCK_ROUTES;
+  const cm = buildColorMap(source);
+  setRoutes(source);
+  setColorMap(cm);
+  setCabGroups(buildCabGroups(source, cm));
+}, [apiData]);
+```
+
+Set `VITE_USE_MOCK=true` in `.env.local` when working offline.

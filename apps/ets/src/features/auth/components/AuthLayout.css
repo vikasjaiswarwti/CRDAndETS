@@ -1,0 +1,33 @@
+/* Mobile */
+@media (max-width: 640px) {
+  .auth-wrapper {
+    padding: 24px 20px !important;
+  }
+  .auth-image-col {
+    display: none !important;
+  }
+  .auth-form-col {
+    flex: 1 1 auto !important;
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+}
+
+/* Tablet */
+@media (min-width: 641px) and (max-width: 1024px) {
+  .auth-wrapper {
+    padding: 32px 48px !important;
+  }
+  .auth-image-col {
+    display: none !important;
+  }
+  .auth-body {
+    justify-content: center !important;
+  }
+  .auth-form-col {
+    flex: 1 1 auto !important;
+    width: 100% !important;
+    max-width: 480px !important;
+    margin: 0 auto !important;
+  }
+}

@@ -1,0 +1,15 @@
+services:
+  gateway:
+    image: ghcr.io/<org>/commutr-gateway:${TAG:-latest}
+    container_name: gateway
+    ports: ["80:80"]
+    environment:
+      AUTH_HOST: dev-auth.commutr.in
+      CORE_HOST: dev-core.commutr.in
+      CRD_HOST: dev-crd.commutr.in   # confirm actual CrdCore host (Phase 0)
+    networks: [commutr-net]
+    restart: unless-stopped
+
+networks:
+  commutr-net:
+    external: true   # create once: docker network create commutr-net

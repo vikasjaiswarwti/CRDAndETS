@@ -1,0 +1,52 @@
+/* src/styles/index.css */
+@import "tailwindcss";
+
+@layer utilities {
+  @keyframes slide-in {
+    from {
+      transform: translateX(100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+
+  .animate-slide-in {
+    animation: slide-in 0.3s ease-out;
+  }
+}
+.vehicle-input input::placeholder {
+  text-transform: none;
+}
+.vehicle-input::placeholder {
+  text-transform: none;
+}
+.no-transition-btn,
+.no-transition-btn:hover,
+.no-transition-btn:active,
+.no-transition-btn:focus {
+  border: 1px solid;
+  transition: none !important;
+  animation: none !important;
+}
+.ant-btn,
+.ant-btn::before {
+  transition: none !important;
+  animation: none !important;
+}
+
+.fullWidthUpload .ant-upload {
+  width: 100%;
+}
+.ant-upload {
+  width: 100%;
+}
+.alertCardcom {
+  content-visibility: auto;
+}
+@keyframes shimmer {
+  0%   { background-position: -600px 0; }
+  100% { background-position:  600px 0; }
+}

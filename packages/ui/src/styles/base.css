@@ -1,0 +1,17 @@
+/* Minimal base styles needed by the shared shell in apps that do NOT use the
+   full ETS Tailwind stylesheet (e.g. CRD). Import AFTER commutr-variables.css. */
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  background: var(--color-bg-page);
+  color: var(--color-text-primary, #1a202c);
+}
+
+ul { margin: 0; }
+
+.scrollbar-thin::-webkit-scrollbar { width: 4px; }
+.scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
+.scrollbar-thin::-webkit-scrollbar-thumb { background: var(--color-border); border-radius: 4px; }
+.scrollbar-thin::-webkit-scrollbar-thumb:hover { background: var(--color-text-muted); }

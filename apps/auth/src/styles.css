@@ -1,0 +1,18 @@
+@import "@commutr/ui/styles/commutr-variables.css";
+
+* { box-sizing: border-box; }
+@keyframes spin { to { transform: rotate(360deg); } }
+html { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+body { margin: 0; font-family: var(--font-sans); background: var(--color-bg-page); color: var(--color-text-primary); line-height: 1.5; }
+
+/* Chooser page only - the login page is the ETS-identical inline-styled layout */
+.page { min-height: 100vh; display: grid; place-items: center; padding: 16px; }
+.card { width: 100%; max-width: 380px; background: #fff; border-radius: 12px; padding: 28px; display: grid; gap: 14px; box-shadow: 0 4px 20px rgba(0,0,0,.08); }
+.page h1 { margin: 0; font-size: 20px; }
+.page label { display: grid; gap: 6px; font-size: 14px; }
+.page input { padding: 10px; border: 1px solid #c9d1de; border-radius: 8px; font-size: 14px; }
+.page button { padding: 10px 14px; border: 0; border-radius: 8px; background: var(--color-brand-primary); color: #fff; font-size: 15px; cursor: pointer; }
+.page button:disabled { opacity: .6; cursor: default; }
+.page button.link { background: none; color: var(--color-brand-primary); padding: 0; font-size: 13px; justify-self: start; }
+.apps { display: grid; gap: 10px; }
+.error { margin: 0; color: #b42318; font-size: 13px; }

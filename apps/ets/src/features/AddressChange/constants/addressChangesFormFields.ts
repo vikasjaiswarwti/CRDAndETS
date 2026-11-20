@@ -1,0 +1,88 @@
+import type { FormFieldDef } from '../../../shared/components/AppForm/AppForm';
+
+export const ADDRESS_CHANGES_FORM_FIELDS: FormFieldDef[] = [
+  {
+    name: 'empID',
+    label: 'Employee ID',
+    type: 'number',
+    required: true,
+    span: 12,
+    placeholder: 'Enter employee ID',
+  },
+  {
+    name: 'city',
+    label: 'City',
+    type: 'text',
+    required: true,
+    span: 12,
+    placeholder: 'Enter city',
+  },
+  {
+    name: 'address',
+    label: 'Address',
+    type: 'textarea',
+    span: 12,
+    placeholder: 'Enter full address',
+  },
+  {
+    name: 'pin',
+    label: 'PIN Code',
+    type: 'number',
+    span: 12,
+    placeholder: 'Enter postal code',
+  },
+  {
+    name: 'state',
+    label: 'State',
+    type: 'text',
+    span: 12,
+    placeholder: 'Enter state name',
+  },
+  {
+    name: 'stateCode',
+    label: 'State Code',
+    type: 'number',
+    span: 12,
+    placeholder: 'Enter state code',
+  },
+  {
+    name: 'mobileNo',
+    label: 'Mobile Number',
+    type: 'text',
+    span: 12,
+    placeholder: 'Enter mobile number',
+  },
+  {
+    name: 'emerContactNo',
+    label: 'Emergency Contact',
+    type: 'text',
+    span: 12,
+    placeholder: 'Enter emergency contact number',
+  },
+  {
+    name: 'nodal_Pick',
+    label: 'Nodal Pick Point',
+    type: 'text',
+    span: 12,
+    placeholder: 'Enter nodal pick point',
+  },
+  {
+    name: 'nodal_Drop',
+    label: 'Nodal Drop Point',
+    type: 'text',
+    span: 12,
+    placeholder: 'Enter nodal drop point',
+  },
+  {
+    name: 'effectivedate',
+    label: 'Effective Date',
+    type: 'date',
+    span: 12,
+  },
+  {
+    name: 'remarks',
+    label: 'Remarks',
+    type: 'textarea',
+    placeholder: 'Optional remarks',
+  },
+];
