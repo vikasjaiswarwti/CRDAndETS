@@ -1,9 +1,9 @@
-# Gateway — draft for the future `commutr-gateway` repo.
-# Rendered by the nginx image's envsubst (see Dockerfile NGINX_ENVSUBST_FILTER).
+# Gateway — rendered by the nginx image's envsubst (see Dockerfile NGINX_ENVSUBST_FILTER).
 #
-# PHASE 2 (current): "/" -> ets-web, no /ets/ /crd/ blocks. No user-visible change.
-# PHASE 3: switch "/" to launcher, enable the /ets/ block (see comments below).
-# PHASE 4: enable the /crd/ and /crd-api/ blocks.
+# "/"      -> launcher (login + app chooser)
+# "/ets/"  -> ets-web
+# "/crd/"  -> crd-web, "/crd-api/" -> CrdCore
+# "/api/"  -> Auth / EtsCore APIs
 
 server {
     listen 80 default_server;
@@ -11,7 +11,7 @@ server {
 
     resolver 8.8.8.8 ipv6=off valid=30s;
 
-    # TODO: set to the value the current ETS nginx uses (uploads: Excel/documents)
+    # uploads: Excel/documents
     client_max_body_size 50m;
 
     location = /healthz {
@@ -56,37 +56,37 @@ server {
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
     }
 
-    # ── PHASE 3: enable these two, then point "/" at launcher ──
-    # location = /ets { return 301 /ets/; }
-    # location /ets/ {
-    #     resolver 127.0.0.11 ipv6=off valid=10s;
-    #     set $ets_web http://ets-web:80;
-    #     proxy_pass $ets_web;
-    #     proxy_set_header Host $host;
-    # }
+    # ── ETS (served under /ets/) ──
+    location = /ets { return 301 /ets/; }
+    location /ets/ {
+        resolver 127.0.0.11 ipv6=off valid=10s;
+        set $ets_web http://ets-web:80;
+        proxy_pass $ets_web;
+        proxy_set_header Host $host;
+    }
 
-    # ── PHASE 4: CRD ──
-    # location = /crd { return 301 /crd/; }
-    # location /crd/ {
-    #     resolver 127.0.0.11 ipv6=off valid=10s;
-    #     set $crd_web http://crd-web:80;
-    #     proxy_pass $crd_web;
-    #     proxy_set_header Host $host;
-    # }
-    # location /crd-api/ {
-    #     set $crd_api https://${CRD_HOST};
-    #     rewrite ^/crd-api/(.*)$ /api/$1 break;
-    #     proxy_pass $crd_api;
-    #     proxy_ssl_server_name on;
-    #     proxy_set_header Host ${CRD_HOST};
-    #     proxy_set_header X-Real-IP $remote_addr;
-    #     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-    # }
+    # ── CRD (served under /crd/) ──
+    location = /crd { return 301 /crd/; }
+    location /crd/ {
+        resolver 127.0.0.11 ipv6=off valid=10s;
+        set $crd_web http://crd-web:80;
+        proxy_pass $crd_web;
+        proxy_set_header Host $host;
+    }
+    location /crd-api/ {
+        set $crd_api https://${CRD_HOST};
+        rewrite ^/crd-api/(.*)$ /api/$1 break;
+        proxy_pass $crd_api;
+        proxy_ssl_server_name on;
+        proxy_set_header Host ${CRD_HOST};
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    }
 
-    # ── Fallback ──  PHASE 2: ets-web.  PHASE 3: change to launcher.
+    # ── Launcher at "/" ──
     location / {
         resolver 127.0.0.11 ipv6=off valid=10s;
-        set $default_app http://ets-web:80;
+        set $default_app http://launcher:80;
         proxy_pass $default_app;
         proxy_set_header Host $host;
     }
