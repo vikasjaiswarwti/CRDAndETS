@@ -14,6 +14,15 @@ server {
     # uploads: Excel/documents
     client_max_body_size 50m;
 
+    # Upstreams are reached over HTTP/1.0 (nginx proxy default), so they never gzip.
+    # Compress here instead, on the way out to the browser.
+    gzip on;
+    gzip_comp_level 5;
+    gzip_min_length 1024;
+    gzip_vary on;
+    gzip_proxied any;
+    gzip_types text/plain text/css application/javascript text/javascript application/json image/svg+xml application/wasm;
+
     location = /healthz {
         add_header Content-Type text/plain;
         return 200 'ok';
