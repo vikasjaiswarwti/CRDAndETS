@@ -12,6 +12,7 @@
   "dependencies": {
     "@ant-design/icons": "^6.1.0",
     "@commutr/shared": "*",
+    "@commutr/system-admin": "*",
     "@commutr/ui": "*",
     "@reduxjs/toolkit": "^2.11.2",
     "antd": "^6.3.1",

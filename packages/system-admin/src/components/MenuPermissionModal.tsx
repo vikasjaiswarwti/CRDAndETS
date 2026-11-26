@@ -1,10 +1,7 @@
 import React, { useEffect, useState } from "react";
-import {
-  useGetMenuPermissionsQuery,
-  useBulkUpdatePermissionsMutation,
-  type AvailablePermission,
-} from "../services/SystemPermissionApi";
-import { useUILibrary } from "../../../shared/lib/ui-lib/ui-library-context";
+import { useSystemAdminApis } from "../api/context";
+import type { AvailablePermission } from "../api/types";
+import { useUILibrary } from "@commutr/ui/ui-lib";
 
 interface MenuPermissionModalProps {
   open: boolean;
@@ -414,6 +411,9 @@ const MenuPermissionModal: React.FC<MenuPermissionModalProps> = ({
   roleName,
 }) => {
   const { message } = useUILibrary();
+  const {
+    permissionApi: { useGetMenuPermissionsQuery, useBulkUpdatePermissionsMutation },
+  } = useSystemAdminApis();
 
   const { data, isFetching, isError, refetch } = useGetMenuPermissionsQuery(
     { menuId, roleId },

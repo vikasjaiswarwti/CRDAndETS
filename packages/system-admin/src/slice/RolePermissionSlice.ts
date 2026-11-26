@@ -22,7 +22,7 @@ export type PermissionDraft = Record<string, DraftEntry>;
 
 // ─── State ────────────────────────────────────────────────────────────────────
 
-interface RolePermissionUiState {
+export interface RolePermissionUiState {
   selectedRoleId: string | null;
   activeTab: PermissionTab;
   expandedMenuIds: string[];
@@ -217,3 +217,11 @@ export const {
 } = rolePermissionSlice.actions;
 
 export default rolePermissionSlice.reducer;
+
+/** The key apps MUST register this reducer under (the screens read state.rolePermissionUi). */
+export const ROLE_PERMISSION_REDUCER_KEY = "rolePermissionUi" as const;
+
+/** Minimal slice of an app's root state that the screens need. */
+export type RolePermissionRootState = {
+  [ROLE_PERMISSION_REDUCER_KEY]: RolePermissionUiState;
+};

@@ -8,6 +8,7 @@ import { ROUTES } from "../shared/constants/app.constants";
 const DashboardPage = lazy(() => import("../features/dashboard/pages/DashboardPage"));
 const AllBookingsPage = lazy(() => import("../features/bookings/pages/AllBookingsPage"));
 const CreateBookingPage = lazy(() => import("../features/bookings/pages/CreateBookingPage"));
+const SystemAdminAccessPage = lazy(() => import("../features/system-administration/SystemAdminAccessPage"));
 
 export const AppRoutes = () => (
   <Suspense fallback={null}>
@@ -22,6 +23,7 @@ export const AppRoutes = () => (
         <Route path={ROUTES.DASHBOARD} element={<DashboardPage />} />
         <Route path={ROUTES.CREATE_BOOKING} element={<CreateBookingPage />} />
         <Route path={ROUTES.BOOKINGS} element={<AllBookingsPage />} />
+        <Route path={ROUTES.SYSTEM_ADMIN_ACCESS} element={<SystemAdminAccessPage />} />
         <Route path="*" element={<Navigate to={ROUTES.DASHBOARD} replace />} />
       </Route>
     </Routes>

@@ -45,7 +45,8 @@ export const AdminDashboard: React.FC = () => {
     if (locCode == null) return;
     fetchReport({
       locCode,
-      fromDate: dayjs().subtract(6, "day").format("YYYY-MM-DD"),
+      // Must match the filter bar's default range (7 days back).
+      fromDate: dayjs().subtract(7, "day").format("YYYY-MM-DD"),
       toDate: dayjs().format("YYYY-MM-DD"),
     });
   }, [locCode]);

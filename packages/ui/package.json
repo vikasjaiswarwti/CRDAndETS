@@ -11,12 +11,17 @@
     "./ui-lib": "./src/ui-lib/index.ts",
     "./primitives": "./src/primitives/index.ts",
     "./layout": "./src/layout/index.ts",
-    "./styles/*": "./src/styles/*"
+    "./styles/*": "./src/styles/*",
+    "./api": "./src/api/index.ts",
+    "./form": "./src/form/index.ts"
   },
   "peerDependencies": {
     "@ant-design/icons": ">=6",
     "antd": ">=6",
     "react": ">=19",
-    "react-dom": ">=19"
+    "react-dom": ">=19",
+    "@reduxjs/toolkit": ">=2",
+    "dayjs": ">=1",
+    "react-phone-input-2": ">=2"
   }
 }

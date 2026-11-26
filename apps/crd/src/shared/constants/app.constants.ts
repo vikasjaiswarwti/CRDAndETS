@@ -13,4 +13,6 @@ export const ROUTES = {
   DASHBOARD: "/dashboard",
   BOOKINGS: "/bookings",
   CREATE_BOOKING: "/bookings/create",
+  SYSTEM_ADMIN_ACCESS: "/system-administration/access",
 } as const;
+

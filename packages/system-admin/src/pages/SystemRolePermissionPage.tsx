@@ -1,25 +1,12 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import type { RootState, AppDispatch } from "../../../app/store";
+import { SystemAdminProvider, useSystemAdminApis } from "../api/context";
+import type { SystemAdminApis } from "../api/createSystemAdminApis";
+import type { RolePermissionRootState } from "../slice/RolePermissionSlice";
 
-import { useUILibrary } from "../../../shared/lib/ui-lib/ui-library-context";
-import { useApiMutation } from "../../../shared/hooks/useApiMutation";
+import { useUILibrary } from "@commutr/ui/ui-lib";
+import { useApiMutation } from "@commutr/ui/api";
 
-import { useGetAllRolesQuery } from "../services/SystemRoleApi";
-import {
-  useGetAllMenusQuery,
-  useCreateMenuMutation,
-  useUpdateMenuMutation,
-} from "../services/SystemMenuapi";
-import {
-  useCreateRoleMutation,
-  useUpdateRoleMutation,
-} from "../services/SystemRoleApi";
-import {
-  useGetRoleMenuTreeQuery,
-  useBulkAssignMenusToRoleMutation,
-  useCreateRoleMenuMappingMutation,
-} from "../services/Systemrolemenumappingapi";
 
 import { selectRole, setActiveTab } from "../slice/RolePermissionSlice";
 import { useRoleModal } from "../hooks/useRoleModal";
@@ -42,9 +29,9 @@ import type {
   MenuItem,
   PermissionTab,
 } from "../types/SystemRolePermission.types";
-import type { RoleMenuTreeItem } from "../services/Systemrolemenumappingapi";
+import type { RoleMenuTreeItem } from "../api/types";
 import type { CreateMenuDto } from "../types/SystemRolePermission.types";
-import { ContentContainer } from "../../../shared/components/ContentContainer/ContentContainer";
+import { ContentContainer } from "@commutr/ui/primitives";
 import MapToRoleModal from "../components/MapToRoleModal";
 
 import MenuPermissionModal from "../components/MenuPermissionModal";
@@ -102,12 +89,27 @@ const TabBtn: React.FC<{
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
-const RolePermissionPage: React.FC = () => {
-  const dispatch = useDispatch<AppDispatch>();
+const RolePermissionPageContent: React.FC = () => {
+  const dispatch = useDispatch();
   const { message } = useUILibrary();
 
+  // The calling app (ETS / CRD) supplies its own RTK Query APIs.
+  const { roleApi, menuApi, roleMenuMappingApi } = useSystemAdminApis();
+  const {
+    useGetAllRolesQuery,
+    useCreateRoleMutation,
+    useUpdateRoleMutation,
+  } = roleApi;
+  const { useGetAllMenusQuery, useCreateMenuMutation, useUpdateMenuMutation } =
+    menuApi;
+  const {
+    useGetRoleMenuTreeQuery,
+    useBulkAssignMenusToRoleMutation,
+    useCreateRoleMenuMappingMutation,
+  } = roleMenuMappingApi;
+
   const { selectedRoleId, activeTab, expandedMenuIds, isDirty } = useSelector(
-    (state: RootState) => state.rolePermissionUi,
+    (state: RolePermissionRootState) => state.rolePermissionUi,
   );
 
   // ── Local state ────────────────────────────────────────────────────────────
@@ -817,4 +819,17 @@ const RolePermissionPage: React.FC = () => {
   );
 };
 
-export default RolePermissionPage;
+/**
+ * Shared System Administration screen.
+ * Usage (each app passes ITS OWN apis, built with createSystemAdminApis):
+ *   <SystemAdminPage apis={systemAdminApis} />
+ */
+export const SystemAdminPage: React.FC<{ apis: SystemAdminApis }> = ({
+  apis,
+}) => (
+  <SystemAdminProvider apis={apis}>
+    <RolePermissionPageContent />
+  </SystemAdminProvider>
+);
+
+export default SystemAdminPage;

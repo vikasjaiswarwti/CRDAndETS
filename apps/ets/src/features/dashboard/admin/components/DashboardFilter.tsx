@@ -162,10 +162,14 @@ export const DashboardFilterBar: React.FC<Props> = ({
   const [toDate, setToDate] = useState<Dayjs>(today);
 
   const isFirstRender = useRef(true);
+  // The parent already fetches the initial report once locations are known.
+  // Seeding locCode here must not trigger a second identical request.
+  const skipNextSearch = useRef(false);
 
   // Seed locCode once options load (handles async load case)
   useEffect(() => {
     if (locationOptions.length > 0 && locCode === undefined) {
+      skipNextSearch.current = true;
       setLocCode(locationOptions[0].value as number);
     }
   }, [locationOptions]);
@@ -174,6 +178,10 @@ export const DashboardFilterBar: React.FC<Props> = ({
   useEffect(() => {
     if (isFirstRender.current) {
       isFirstRender.current = false;
+      return;
+    }
+    if (skipNextSearch.current) {
+      skipNextSearch.current = false;
       return;
     }
     if (!locCode) return;

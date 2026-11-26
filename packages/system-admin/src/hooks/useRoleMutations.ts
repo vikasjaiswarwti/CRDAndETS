@@ -1,8 +1,5 @@
-import { useApiMutation } from "../../../shared/hooks/useApiMutation";
-import {
-  useCreateRoleMutation,
-  useUpdateRoleMutation,
-} from "../services/SystemRoleApi";
+import { useApiMutation } from "@commutr/ui/api";
+import { useSystemAdminApis } from "../api/context";
 
 interface UseRoleMutationsOptions {
   onCreateSuccess?: () => void;
@@ -13,12 +10,14 @@ export const useRoleMutations = ({
   onCreateSuccess,
   onUpdateSuccess,
 }: UseRoleMutationsOptions = {}) => {
-  const createRole = useApiMutation(useCreateRoleMutation, {
+  const { roleApi } = useSystemAdminApis();
+
+  const createRole = useApiMutation(roleApi.useCreateRoleMutation, {
     successMessage: "Role created successfully",
     onSuccess: onCreateSuccess,
   });
 
-  const updateRole = useApiMutation(useUpdateRoleMutation, {
+  const updateRole = useApiMutation(roleApi.useUpdateRoleMutation, {
     successMessage: "Role updated successfully",
     onSuccess: onUpdateSuccess,
   });

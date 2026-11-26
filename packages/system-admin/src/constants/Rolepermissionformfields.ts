@@ -1,6 +1,6 @@
 
 
-import type { FormFieldDef } from "../../../shared/components/AppForm/AppForm";
+import type { FormFieldDef } from "@commutr/ui/form";
 
 export const ROLE_FORM_FIELDS: FormFieldDef[] = [
   {

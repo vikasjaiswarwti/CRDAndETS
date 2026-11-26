@@ -36,13 +36,17 @@ import { authApi } from "../../features/auth/services/authApi";
 // never change this ....
 import { menuApi } from "../../features/navigation/services/menuApi"; // here is the user preferences calls
 // import { userApi } from "../../features/user-management/services/userApi";
-import { adminMenuApi } from "../../features/system-administration/services/SystemMenuapi";
+import {
+  adminMenuApi,
+  systemRoleApi,
+  systemPermissionApi,
+  roleMenuMappingApi,
+} from "../../features/system-administration/systemAdminApis";
 import { lookupsApi } from "../../features/lookups/services/lookupsApi";
 
 import { roleApi } from "../../features/role-management/services/roleApi";
 // Same-named exports from other features; each has its OWN unique reducerPath and
 // MUST be registered here (reducer + middleware) or RTK Query warns on first use.
-import { roleApi as systemRoleApi } from "../../features/system-administration/services/SystemRoleApi";
 import { adminMenuApi as menuManagementApi } from "../../features/menu-management/services/adminMenuApi";
 import { roleMenuMappingApi as roleMenuMappingListApi } from "../../features/role-menu-mapping/services/roleMenuMappingApi";
 import { adminDashboardApi as adminDataDashboardApi } from "../../features/dashboard/AdminDATA/services/adminDashboardApi";
@@ -73,8 +77,7 @@ import { processApi } from "../../features/lkp-process/services/processApi";
 import { employeeTypeApi } from "../../features/employee-type/services/EmployeeTypeApi";
 import { employeeApi } from "../../features/employee/services/Employeeapi";
 
-import rolePermissionReducer from "../../features/system-administration/slice/RolePermissionSlice";
-import { roleMenuMappingApi } from "../../features/system-administration/services/Systemrolemenumappingapi";
+import { rolePermissionReducer } from "@commutr/system-admin";
 
 // import { menuApi } from "../../features/navigation/services/menuApi"; // here is the user preferences calls
 
@@ -119,7 +122,6 @@ import { routeTrackingApi } from "../../features/route-tracking/services/routeTr
 import { vendorTripApi } from "../../features/vendor-trip/services/vendorTripApi";
 import pinnedRoutesReducer from "../../features/route-optimization/slice/pinnedRoutesSlice";
 import allocationSessionReducer from "../../features/route-optimization/slice/Allocationsessionslice";
-import { systemPermissionApi } from "../../features/system-administration/services/SystemPermissionApi";
 
 import { vehicleComplianceApi } from "../../features/compliant-nonCompliant/services/VehicleComplianceApi";
 import { profileApi } from "../../features/profile/services/profileApi";

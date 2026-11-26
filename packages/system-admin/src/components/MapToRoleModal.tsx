@@ -1,6 +1,6 @@
 // components/MapToRoleModal.tsx
 import React, { useState } from "react";
-import { useUILibrary } from "../../../shared/lib/ui-lib/ui-library-context";
+import { useUILibrary } from "@commutr/ui/ui-lib";
 import type { Role } from "../types/SystemRolePermission.types";
 
 interface MapToRoleModalProps {

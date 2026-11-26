@@ -11,3 +11,4 @@ export * from "./Select";
 export * from "./Modal";
 export * from "./Table";
 export { default as IconButton } from "./IconButton";
+export * from "./ContentContainer";

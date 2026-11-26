@@ -17,19 +17,34 @@ import bookingsUiReducer from "../../features/bookings/slice/bookingsUiSlice";
 
 import { authApi } from "../../features/auth/services/authApi";
 import { bookingsApi } from "../../features/bookings/services/bookingsApi";
+import { rolePermissionReducer, ROLE_PERMISSION_REDUCER_KEY } from "@commutr/system-admin";
+import { systemAdminApis } from "../../features/system-administration/systemAdminApis";
 
 import { initPersistence } from "./persistence";
 
 // ── API registry ──────────────────────────────────────────────────────────────
-const apiSlices = [authApi, bookingsApi] as const;
+const { roleApi, menuApi, permissionApi, roleMenuMappingApi } = systemAdminApis;
+const apiSlices = [
+  authApi,
+  bookingsApi,
+  roleApi,
+  menuApi,
+  permissionApi,
+  roleMenuMappingApi,
+] as const;
 
 const rootReducer = combineReducers({
   auth: authReducer,
   navigation: navigationReducer,
   bookingsUi: bookingsUiReducer,
+  [ROLE_PERMISSION_REDUCER_KEY]: rolePermissionReducer, // must be "rolePermissionUi"
 
   [authApi.reducerPath]: authApi.reducer,
   [bookingsApi.reducerPath]: bookingsApi.reducer,
+  [roleApi.reducerPath]: roleApi.reducer,
+  [menuApi.reducerPath]: menuApi.reducer,
+  [permissionApi.reducerPath]: permissionApi.reducer,
+  [roleMenuMappingApi.reducerPath]: roleMenuMappingApi.reducer,
 });
 
 // ── Reset everything on logout / account switch ───────────────────────────────

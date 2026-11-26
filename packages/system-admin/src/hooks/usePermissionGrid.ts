@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import type { RootState, AppDispatch } from "../../../app/store";
+import type { RolePermissionRootState } from "../slice/RolePermissionSlice";
 import {
   togglePermission,
   toggleMenuAssigned,
@@ -11,7 +11,7 @@ import {
   removeDraftEntries,
 } from "../slice/RolePermissionSlice";
 import type { PermissionKey } from "../types/SystemRolePermission.types";
-import type { RoleMenuTreeItem } from "../services/Systemrolemenumappingapi";
+import type { RoleMenuTreeItem } from "../api/types";
 import { DEFAULT_PERMISSIONS } from "../constants/RolePermissionConstants";
 
 // ─── Types ─────────────────────────────────────────────────────────────────────
@@ -66,7 +66,7 @@ function flattenAll(items: RoleMenuTreeItem[]): RoleMenuTreeItem[] {
 // ─── Merge helper ──────────────────────────────────────────────────────────────
 function mergeWithDraft(
   item: RoleMenuTreeItem,
-  draft: RootState["rolePermissionUi"]["permissionDraft"],
+  draft: RolePermissionRootState["rolePermissionUi"]["permissionDraft"],
 ): MenuWithResolved {
   const draftEntry = draft[item.menuId];
 
@@ -94,9 +94,9 @@ function mergeWithDraft(
 
 // ─── Hook ──────────────────────────────────────────────────────────────────────
 export const usePermissionGrid = (rawMenus: RoleMenuTreeItem[]) => {
-  const dispatch = useDispatch<AppDispatch>();
+  const dispatch = useDispatch();
   const { permissionDraft, isDirty, expandedMenuIds } = useSelector(
-    (state: RootState) => state.rolePermissionUi,
+    (state: RolePermissionRootState) => state.rolePermissionUi,
   );
 
   // ✅ Filter isAssigned:false BEFORE merging — business rule, not UI concern

@@ -1,5 +1,5 @@
 import React from "react";
-import { useUILibrary } from "../../../shared/lib/ui-lib/ui-library-context";
+import { useUILibrary } from "@commutr/ui/ui-lib";
 import type { PermissionKey } from "../types/SystemRolePermission.types";
 import { PERMISSION_COLUMNS } from "../constants/RolePermissionConstants";
 import type { MenuWithResolved } from "../hooks/usePermissionGrid";

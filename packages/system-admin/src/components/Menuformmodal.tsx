@@ -1,8 +1,8 @@
 import React, { useMemo } from "react";
-import { useUILibrary } from "../../../shared/lib/ui-lib/ui-library-context";
-import { AppForm } from "../../../shared/components/AppForm/AppForm";
+import { useUILibrary } from "@commutr/ui/ui-lib";
+import { AppForm } from "@commutr/ui/form";
 import type { MenuItem } from "../types/SystemRolePermission.types";
-import type { FieldError } from "../../../shared/types/api-error.types";
+import type { FieldError } from "@commutr/ui/api";
 import { getMenuFormFields } from "../constants/Rolepermissionformfields";
 
 interface MenuFormModalProps {

@@ -2,6 +2,12 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 
 // Served by the gateway under /crd/ (same origin as ETS and the launcher).
+// Dev target for CrdCore APIs (/crd-api/* -> /api/*). The real CrdCore host does not exist yet
+// ("dev-crd.commutr.in" does not resolve), so in LOCAL DEV this defaults to the EtsCore dev
+// server, which already serves RoleManagement / Menu / RoleMenuMapping / Permissions.
+// => in dev, CRD screens show EtsCore data. Set CRD_API_TARGET=https://<real-crd-host> to change.
+const CRD_API_TARGET = process.env.CRD_API_TARGET ?? "https://dev-core.commutr.in";
+
 export default defineConfig({
   base: "/crd/",
   plugins: [react()],
@@ -28,7 +34,7 @@ export default defineConfig({
       // Browser calls /crd-api/...; CrdCore receives /api/...
       // TODO: confirm CrdCore host + base path (Phase 0).
       "/crd-api": {
-        target: "https://dev-crd.commutr.in",
+        target: CRD_API_TARGET,
         changeOrigin: true,
         secure: false,
         rewrite: (p) => p.replace(/^\/crd-api/, "/api"),
